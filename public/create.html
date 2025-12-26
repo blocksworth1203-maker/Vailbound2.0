@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vailbound | Create Character</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", serif;
+      background: radial-gradient(circle at top, #1b1b1b, #000);
+      color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: #111;
+      border: 2px solid #6b4e2e;
+      padding: 30px;
+      width: 400px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    h1 { color: #d4af37; margin-bottom: 15px; }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: none;
+      background: #1e1e1e;
+      color: white;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: #6b4e2e;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #8a653b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h1>🛡️ Character Creation</h1>
+
+    <input id="charName" placeholder="Character Name">
+    <input id="charRace" placeholder="Race">
+    <input id="charClass" placeholder="Class">
+    <input id="charTrait" placeholder="Unique Trait">
+
+    <button onclick="createCharacter()">Create Character</button>
+  </div>
+
+  <script>
+    // Ensure user is logged in
+    const username = localStorage.getItem("user");
+    if (!username) {
+      alert("You must log in first.");
+      window.location.href = "/index.html";
+    }
+
+    function createCharacter() {
+      const charName = document.getElementById("charName").value.trim();
+      const charRace = document.getElementById("charRace").value.trim();
+      const charClass = document.getElementById("charClass").value.trim();
+      const charTrait = document.getElementById("charTrait").value.trim();
+
+      if (!charName || !charRace || !charClass || !charTrait) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      fetch("/character", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username,
+          character: {
+            name: charName,
+            race: charRace,
+            class: charClass,
+            trait: charTrait
+          }
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // Redirect to main page
+          window.location.href = "/main.html";
+        } else {
+          alert("Error saving character.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Server error. Try again later.");
+      });
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vailbound | Main</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", serif;
+      background: radial-gradient(circle at top, #1b1b1b, #000);
+      color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #d4af37;
+      margin-bottom: 10px;
+    }
+
+    .character-box, .inventory-box {
+      background: #111;
+      border: 2px solid #6b4e2e;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      margin: 10px 0;
+    }
+
+    .inventory-box ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .inventory-box li {
+      padding: 5px 0;
+      border-bottom: 1px solid #333;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      background: #6b4e2e;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #8a653b;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>⚔️ Vailbound Main Page</h1>
+
+  <div class="character-box" id="characterBox">
+    <h2>Character Info</h2>
+    <p><strong>Name:</strong> <span id="charName"></span></p>
+    <p><strong>Race:</strong> <span id="charRace"></span></p>
+    <p><strong>Class:</strong> <span id="charClass"></span></p>
+    <p><strong>Trait:</strong> <span id="charTrait"></span></p>
+  </div>
+
+  <div class="inventory-box">
+    <h2>Inventory</h2>
+    <ul id="inventoryList">
+      <!-- Items will be populated here -->
+    </ul>
+  </div>
+
+  <button onclick="logout()">Logout</button>
+
+  <script>
+    const username = localStorage.getItem("user");
+    if (!username) {
+      alert("You must log in first.");
+      window.location.href = "/login.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("user");
+      window.location.href = "/login.html";
+    }
+
+    async function loadPlayer() {
+      try {
+        const res = await fetch(`/player?username=${username}`);
+        if (!res.ok) {
+          alert("Failed to load player data.");
+          return;
+        }
+        const player = await res.json();
+
+        // Character info
+        document.getElementById("charName").textContent = player.character.name || "N/A";
+        document.getElementById("charRace").textContent = player.character.race || "N/A";
+        document.getElementById("charClass").textContent = player.character.class || "N/A";
+        document.getElementById("charTrait").textContent = player.character.trait || "N/A";
+
+        // Inventory
+        const inventoryList = document.getElementById("inventoryList");
+        inventoryList.innerHTML = ""; // Clear existing
+        if (player.inventory && player.inventory.length > 0) {
+          player.inventory.forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = item;
+            inventoryList.appendChild(li);
+          });
+        } else {
+          const li = document.createElement("li");
+          li.textContent = "Inventory is empty.";
+          inventoryList.appendChild(li);
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert("Error loading player data.");
+      }
+    }
+
+    loadPlayer();
+  </script>
+
+</body>
+</html>
